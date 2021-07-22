@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e
+DIR=$(dirname "$(realpath "$BASH_SOURCE")")
+source "$DIR/.common"
+
+for test in "$DIR"/../tests/*.test.sh; do
+	"$test"
+done

@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+DIR=$(dirname "$(realpath "$BASH_SOURCE")")
+source "$DIR/.common"
+
+cd "$DIR/.."
+
+if [ ! -f .env ]; then
+	cmd cp .env.dist .env
+fi
+load_env
+
+bin/stop
+
+title "Clean docker development environment"
+cmd docker-compose rm -v -f $@
+set +e
+cmd docker rmi traefik:${TRAEFIK_VERSION} 
+cmd docker rmi portainer/portainer:${PORTAINER_VERSION} 
+cmd docker rmi id1/traefik 
+cmd docker rmi sonarqube:${SONARQUBE_VERSION}
+cmd docker network rm "${REVERSE_PROXY_NETWORK}"
+set -e
+
+title "Remove temporary files"
+cmd rm -Rf ./var
+cmd rm -Rf ./.env

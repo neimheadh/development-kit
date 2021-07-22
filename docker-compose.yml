@@ -1,0 +1,49 @@
+version: '3.5'
+
+networks:
+    reverse-proxy:
+        external:
+            name: ${REVERSE_PROXY_NETWORK}
+            
+services:
+    portainer:
+        container_name: portainer
+        image: portainer/portainer:${PORTAINER_VERSION}
+        restart: always
+        command: --no-auth -H unix:///var/run/docker.sock
+        volumes: 
+            - ${DOCKER_SOCKET_FILE}:/var/run/docker.sock
+        networks:
+            - reverse-proxy
+        labels:
+            - traefik.http.routers.portainer.rule=Host(`portainer.${BASE_DOMAIN}`)
+    
+    traefik:
+        container_name: traefik
+        image: id0ne/traefik
+        build:
+            context: docker/traefik
+            args:
+                FROM_IMAGE: traefik:${TRAEFIK_VERSION}
+        restart: always
+        networks:
+            - reverse-proxy
+        volumes:
+            - ${DOCKER_SOCKET_FILE}:/var/run/docker.sock
+            - ${TRAEFIK_SSL_CERT_FILE}:/etc/traefik/ssl/cert.pem
+            - ${TRAEFIK_SSL_KEY_FILE}:/etc/traefik/ssl/key.pem
+        labels:
+            - traefik.http.routers.traefik.rule=Host(`traefik.${BASE_DOMAIN}`)
+            - traefik.http.routers.traefik.service=api@internal
+        ports:
+            - ${HTTP_PORT}:80
+            - ${HTTPS_PORT}:443
+
+    sonarqube:
+        container_name: sonarqube
+        image: sonarqube:${SONARQUBE_VERSION}
+        restart: always
+        networks:
+            - reverse-proxy
+        labels:
+            - traefik.http.routers.sonarqube.rule=Host(`sonarqube.${BASE_DOMAIN}`)

@@ -1,0 +1,104 @@
+#!/bin/bash
+DIR=$(dirname "$(realpath "$BASH_SOURCE")")
+source "$DIR/../bin/.common"
+
+export CONTAINERS="portainer traefik sonarqube" #sonarcube
+export IMAGES="portainer traefik id1/traefik sonarqube" #sonarcube
+export REVERSE_PROXY_NETWORK="reverse-proxy"
+
+function mute() {
+	eval "$@" > /dev/null	
+}
+
+function mute_all() {
+	eval "$@" > /dev/null 2>&1	
+}
+
+function succeed() {
+	if [ $# -lt 1 ]; then
+		echo
+		error "ERROR: succeed function usage: succeed <cmd_return_code> (ex: succeed \$?)"
+		exit 1
+	fi
+	
+	code=$1
+	shift
+	
+	if [ $# -gt 0 ]; then
+		echo -n  " "
+		info -n "$@"
+		echo -n " "
+	fi
+	
+	if [ $code -gt 0 ]; then
+		error "Error"
+		exit $code
+	else
+		success "OK"
+	fi	
+}
+
+function assert_cmd_info() {
+	info -n $1
+	shift
+	
+	mute_all $@
+	succeed $? -
+}
+
+function assert_url()
+{
+	url=$1
+	
+	info -n "Check url";echo -n " ";echo_cmd -n $url
+	http_code=$(curl -k -o /dev/null -s -w "%{http_code}\n" "$url")
+	if [ "$http_code" != "200" ]; then
+		echo -n " ";info "-";echo -n " ";
+		error -n "Error -";echo -n " ";
+		error "Curl respond http code $http_code"
+		exit 1
+	fi
+	succeed 0 -	
+}
+
+function wait_traefik_services()
+{
+	SERVICES=$1
+	shift
+	
+	if [ $# -gt 0 ]; then
+		loop=$1
+	else
+		loop=10
+	fi
+	
+	load_env
+	url="https://traefik.${BASE_DOMAIN}/api/http/services"
+	
+	services=$(curl -s -q -k "$url" | grep -o '"name":"[^\"]*"')
+	if [ $? -gt 0 ]; then
+		succeed 1 -
+	fi
+	
+	ok=0
+	n=0
+	
+	while [ $ok -eq 0 ] && [ $n -lt $loop ]; do	
+		ok=1
+		n=$(($n + 1))
+		for service in $SERVICES; do
+			echo "$services" | grep -o "\"name\":\"$service\"" > /dev/null
+			if [ $? -gt 0 ]; then
+				ok=0
+			fi
+		done
+		
+		if [ $ok -eq 0 ]; then
+			sleep 1
+		fi
+	done
+	
+	if [ $ok -eq 0 ]; then
+		succeed 1 -	
+	fi
+}

@@ -1,0 +1,51 @@
+#!/bin/bash
+function _echo() {
+	args="-e"
+	color=$1
+	shift
+	
+	if [ $1 == "-n" ]; then
+		args="$args -n"
+		shift
+	fi
+	echo $args "$color$@\033[0m"
+}
+
+function load_env() {
+	if [ -f .env ]; then
+		while read -r line; do
+			eval "$line"
+		done < .env
+	fi
+}
+
+function info() {
+	_echo "\033[36m" $@
+}
+
+function title() {
+	title=$(_echo "\033[32m" -n $@)
+	length=$(($(expr length "$title") - 6))
+	
+	echo
+	echo " $title"
+	_echo "\033[32m" $(seq -s- $length | tr -d '[:digit:]')
+	echo 
+}
+
+function echo_cmd() {
+	_echo "\033[34m" $@	
+}
+
+function cmd() {
+	echo_cmd $@
+	eval "$@"	
+}
+
+function success() {
+	_echo "\033[32m" $@	
+}
+
+function error() {
+	_echo "\033[31m" $@	
+}

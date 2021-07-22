@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+DIR=$(dirname "$(realpath "$BASH_SOURCE")")
+source "$DIR/.common"
+
+cd "$DIR/.."
+docker-compose logs $@

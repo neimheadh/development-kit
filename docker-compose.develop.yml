@@ -1,0 +1,9 @@
+version: '3.5'
+
+services:
+    traefik:
+        ports:
+            - 8080:8080
+        volumes:
+            - ./docker/traefik/conf.d:/etc/traefik/conf.d
+            - ./docker/traefik/traefik.yml:/etc/traefik/traefik.yml

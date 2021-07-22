@@ -1,0 +1,8 @@
+version: '3.5'
+
+services:
+    traefik:
+        build:
+            context: docker/traefik
+            args:
+                FROM_IMAGE: traefik:${TRAEFIK_VERSION}

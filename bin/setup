@@ -1,0 +1,46 @@
+#!/bin/bash
+set -e
+DIR=$(dirname "$(realpath "$BASH_SOURCE")")
+
+source "$DIR/.common"
+cd "$DIR/.."
+
+# Copy dist env file
+if [ ! -f ./.env ]; then
+	title "Generate development environment file"
+	cmd cp .env.dist .env	
+fi
+
+load_env
+
+# Create docker network
+if [ $(docker network ls | grep "${REVERSE_PROXY_NETWORK}" | wc -l) -lt 1 ]; then
+	title "Create docker reverse-proxy network"
+	docker network create "${REVERSE_PROXY_NETWORK}"
+fi
+
+# Generate SSL certificate
+if [ ! -f "${TRAEFIK_SSL_CERT_FILE}" ]; then
+	title "Generate SSL certificate"
+	cmd mkdir -p "$(dirname "${TRAEFIK_SSL_CERT_FILE}")" "$(dirname "${TRAEFIK_SSL_KEY_FILE}")"
+	cmd openssl req \
+	  -newkey rsa:2048 \
+	  -nodes \
+	  -keyout \"${TRAEFIK_SSL_KEY_FILE}\" \
+	  -x509 \
+	  -days 365 \
+	  -out \"${TRAEFIK_SSL_CERT_FILE}\" \
+	  -subj \"/C=US/ST=New York/L=New York/O=Dis/CN=docker.localhost/\"
+fi
+
+# Configure host for Sonarqube
+sudo sysctl -w vm.max_map_count=262144
+sudo sysctl -w fs.file-max=65536
+ulimit -n 65536
+ulimit -u 4096
+
+# Build images
+title "Build docker images"
+cmd docker-compose -f docker-compose.yml -f docker-compose.build.yml build
+
+bin/start
