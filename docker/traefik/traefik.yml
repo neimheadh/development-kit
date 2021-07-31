@@ -20,6 +20,6 @@ api:
     
 providers:
     docker:
-        exposedByDefault: false
+        exposedByDefault: true
     file:
         directory: /etc/traefik/conf.d

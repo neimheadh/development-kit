@@ -30,7 +30,7 @@ if [ ! -f "${TRAEFIK_SSL_CERT_FILE}" ]; then
 	  -x509 \
 	  -days 365 \
 	  -out \"${TRAEFIK_SSL_CERT_FILE}\" \
-	  -subj \"/C=US/ST=New York/L=New York/O=Dis/CN=docker.localhost/\"
+	  -subj \"/C=${SSL_C}/ST=${SSL_ST}/L=${SSL_L}/O=${SSL_O}/OU=${SSL_OU}/CN=${BASE_DOMAIN}/\"
 fi
 
 # Configure host for Sonarqube
