@@ -41,6 +41,6 @@ ulimit -u 4096
 
 # Build images
 title "Build docker images"
-cmd docker-compose -f docker-compose.yml -f docker-compose.build.yml build
+cmd docker-compose -f docker-compose.yml -f docker-compose.build.yml build ${SERVICES}
 
 bin/start
