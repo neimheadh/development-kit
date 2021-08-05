@@ -60,6 +60,7 @@ Here the list of changeable configuration variables:
 
 | name | default | possible values | definition |
 |------|---------|-----------------|------------|
+| `SERVICES` | "traefik portainer sonarqube" | available space-separated service names in [docker-compose.yml](docker-compose.yml) file | Enabled development services | 
 | `REVERSE_PROXY_NETWORK` | "reverse-proxy" | any | Docker network name used for the reverse-proxy (traefik) |
 | `BASE_DOMAIN` | "docker.localhost" | any | Base domain name for all your containers |
 | `PORTAINER_VERSION` | 1.23.2 | [A valid portainer image version](https://hub.docker.com/_/portainer) | The portainer image version for the portainer container |

@@ -5,5 +5,12 @@ source "$DIR/.common"
 
 cd "$DIR/.."
 
+if [[ "$#" -gt 1 ]]; then
+    services=$@
+else
+    load_env
+    services=${SERVICES}
+fi
+
 title "Start developpement environnement containers"
-docker-compose up --remove-orphans -d $@
+docker-compose up --remove-orphans -d $services
