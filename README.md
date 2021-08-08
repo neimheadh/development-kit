@@ -48,6 +48,50 @@ bin/setup
 And... That's all. The links in paragraph [Included tools](#included-tools)
 should now work.
 
+Add your service
+----------------
+
+To add your service in traefik, just add it to the `${REVERSE_PROXY_NETWORK}` network (see configuration below) and set labels `traefik.enable` and 
+`traefik.http.routers.{MY_SERVICE}.rule` as following :
+
+```yaml
+networks:
+  front:
+    external: true
+    name: reverse-proxy
+
+services:
+  my_service:
+    # [...]
+    networks:
+      - front
+    labels:
+      # Enable traefik resolve
+      - traefik.enable=true
+      # Set the service domain -- here my_service.docker.localhost
+      - traefik.http.routers.my_service.rule=Host(`my_service.docker.localhost`)
+```
+
+If your service use multiple networks, you'll have to specify the network used by traefik with the label `traefik.docker.network`:
+
+```yaml
+networks:
+  back:
+    driver: bridge
+  front:
+    # [...]
+
+services:
+  my_services:
+    # [...]
+    networks:
+      - front
+      - back
+    labels:
+      # [...]
+      - traefik.docker.network=front
+```
+
 Configuration
 -------------
 

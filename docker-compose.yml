@@ -16,6 +16,7 @@ services:
         networks:
             - reverse-proxy
         labels:
+            - traefik.enable=true
             - traefik.http.routers.portainer.rule=Host(`portainer.${BASE_DOMAIN}`)
     
     traefik:
@@ -33,6 +34,7 @@ services:
             - ${TRAEFIK_SSL_CERT_FILE}:/etc/traefik/ssl/cert.pem
             - ${TRAEFIK_SSL_KEY_FILE}:/etc/traefik/ssl/key.pem
         labels:
+            - traefik.enable=true
             - traefik.http.routers.traefik.rule=Host(`traefik.${BASE_DOMAIN}`)
             - traefik.http.routers.traefik.service=api@internal
         ports:
@@ -46,4 +48,5 @@ services:
         networks:
             - reverse-proxy
         labels:
+            - traefik.enable=true
             - traefik.http.routers.sonarqube.rule=Host(`sonarqube.${BASE_DOMAIN}`)
