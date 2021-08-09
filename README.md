@@ -92,6 +92,19 @@ services:
       - traefik.docker.network=front
 ```
 
+By default, all entrypoints are created in traefik for your service. If you only want some of them, you can set
+the `traefik.http.routers.{MY_SERVICE}.entrypoints` label like following:
+
+```yaml
+# [...]
+services:
+  my_services:
+    # [...]
+    labels:
+      # [...]
+      - traefik.http.routers.ant_php.entryPoints=http,https
+```
+
 Configuration
 -------------
 
@@ -102,8 +115,8 @@ file, change values and (re-)run `bin/setup`.
 
 Here the list of changeable configuration variables:
 
-| name | default | possible values | definition |
-|------|---------|-----------------|------------|
+| variable | default | possible values | definition |
+|----------|---------|-----------------|------------|
 | `SERVICES` | "traefik portainer sonarqube" | available space-separated service names in [docker-compose.yml](docker-compose.yml) file | Enabled development services | 
 | `REVERSE_PROXY_NETWORK` | "reverse-proxy" | any | Docker network name used for the reverse-proxy (traefik) |
 | `BASE_DOMAIN` | "docker.localhost" | any | Base domain name for all your containers |
@@ -112,6 +125,15 @@ Here the list of changeable configuration variables:
 | `SONARQUBE_VERSION` | 8.3.1-community | [A valid sonarqube image version](https://hub.docker.com/_/sonarqube) | The traefik image version for the traefik container |
 | `TRAEFIK_SSL_CERT_FILE` | "./var/ssl/cert.pem" | Any ssl cert file | The SSL cert file used by traefik |
 | `TRAEFIK_SSL_KEY_FILE` | "./var/ssl/key.pem" | Any ssl key file | The SSL key file used by traefik |
+
+Here the list of configured traefik entrypoints:
+
+| entrypoint | port | definition |
+|------------|------|------------|
+| http       | 80   | Web |
+| https      | 443  | Secured (SSL) web |
+| mysql      | 3306 | MySQL database |
+| postgres   | 5432 | Postgres database |
 
 Documentation
 -------------

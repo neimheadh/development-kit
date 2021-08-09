@@ -2,7 +2,7 @@ log:
     level: debug 
 
 entryPoints:
-    web:
+    http:
         address: ":80"
         http:
             redirections:
@@ -11,10 +11,17 @@ entryPoints:
                     scheme: https
                     permanent: true
 
-    websecure:
+    https:
         address: ":443"
         http:
             tls: {}
+    
+    mysql:
+        address: ":3306"
+    
+    postgres:
+        address: ":5432"
+
 api:
     insecure: true
     
